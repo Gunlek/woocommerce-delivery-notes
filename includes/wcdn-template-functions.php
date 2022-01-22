@@ -18,9 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $name Template name.
  * @param array  $args Arguments array.
  */
-function wcdn_get_template_content( $name, $args = null ) {
+function wcdn_get_template_content( $name, $template_type, $args = null ) {
 	global $wcdn;
-	$location = $wcdn->print->get_template_file_location( $name );
+	$location = $wcdn->print->get_template_file_location( $name, $template_type );
 	if ( $location ) {
 		wc_get_template( $name, $args, $location, $location );
 	}
@@ -153,7 +153,7 @@ function wcdn_template_stylesheet() {
 	$name = apply_filters( 'wcdn_template_stylesheet_name', 'style.css' );
 	// phpcs:disable
 	?>
-	<link rel="stylesheet" href="<?php echo esc_url( $wcdn->print->get_template_file_location( $name, true ) ) . esc_html( $name ); ?>" type="text/css" media="screen,print" />
+	<link rel="stylesheet" href="<?php echo esc_url( $wcdn->print->get_template_file_location( $name, '', true ) ) . esc_html( $name ); ?>" type="text/css" media="screen,print" />
 	<?php
 	// phpcs:enable
 }
@@ -175,6 +175,7 @@ function wcdn_content( $order, $template_type ) {
 	// Load the template.
 	wcdn_get_template_content(
 		'print-content.php',
+        $template_type,
 		array(
 			'order'         => $order,
 			'template_type' => $template_type,

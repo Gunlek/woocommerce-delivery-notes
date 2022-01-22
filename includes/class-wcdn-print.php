@@ -427,7 +427,7 @@ if ( ! class_exists( 'WCDN_Print' ) ) {
 			}
 
 			// Load the print template html.
-			$location = $this->get_template_file_location( 'print-order.php' );
+			$location = $this->get_template_file_location( 'print-order.php', $template_type);
 			wc_get_template( 'print-order.php', null, $location, $location );
 			exit;
 		}
@@ -438,14 +438,14 @@ if ( ! class_exists( 'WCDN_Print' ) ) {
 		 * @param string  $name Template name.
 		 * @param boolean $url_mode URL mode.
 		 */
-		public function get_template_file_location( $name, $url_mode = false ) {
+		public function get_template_file_location( $name, $template_type, $url_mode = false ) {
 			$found = '';
 			foreach ( $this->template_locations as $template_location ) {
-				if ( isset( $template_location['path'] ) && file_exists( trailingslashit( $template_location['path'] ) . $name ) ) {
+				if ( isset( $template_location['path'] ) && file_exists( trailingslashit( $template_location['path'] . $template_type) . $name )) {
 					if ( $url_mode ) {
-						$found = $template_location['url'];
+						$found = trailingslashit($template_location['url'] . $template_type);
 					} else {
-						$found = $template_location['path'];
+						$found = trailingslashit($template_location['path'] . $template_type);
 					}
 					break;
 				}
