@@ -79,7 +79,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 								<?php foreach( $order->get_items() as $item ) : ?>
 									
 									<?php
-										$product = apply_filters( 'wcdn_order_item_product', $order->get_product_from_item( $item ), $item );
+										$product = apply_filters( 'wcdn_order_item_product', $item->get_product(), $item );
 										$item_meta = new WC_Order_Item_Meta( $item['item_meta'], $product );
 									?>
 									

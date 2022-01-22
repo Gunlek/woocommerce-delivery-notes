@@ -1,6 +1,6 @@
 <?php
 /**
- * Print order template. This is the main file. Most 
+ * Print order template. This is the main file. Most
  * probably it is easier to edit one of the content by
  * copying it to your theme /woocommerce/print
  *

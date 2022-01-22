@@ -10,9 +10,9 @@ if ( !defined( 'ABSPATH' ) ) {
 /**
  * Output the template part
  */
-function wcdn_get_template_content( $name, $args = null ) {
+function wcdn_get_template_content( $name, $template_type, $args = null ) {
 	global $wcdn;
-	$location = $wcdn->print->get_template_file_location( $name );
+	$location = $wcdn->print->get_template_file_location( $name, $template_type );
 	if( $location ) {
 		wc_get_template( $name, $args, $location, $location );
 	}
@@ -139,7 +139,7 @@ function wcdn_template_stylesheet() {
 	global $wcdn;
 	$name = apply_filters( 'wcdn_template_stylesheet_name', 'style.css' );
 	?>
-	<link rel="stylesheet" href="<?php echo $wcdn->print->get_template_file_location( $name, true ) . $name; ?>" type="text/css" media="screen,print" />
+	<link rel="stylesheet" href="<?php echo $wcdn->print->get_template_file_location( $name, '', true ) . $name; ?>" type="text/css" media="screen,print" />
 	<?php
 }
 
@@ -156,7 +156,7 @@ function wcdn_content( $order, $template_type ) {
 	add_filter( 'woocommerce_get_order_item_totals', 'wcdn_add_refunded_order_totals', 30, 2 );
 	
 	// Load the template
-	wcdn_get_template_content( 'print-content.php', array( 'order' => $order, 'template_type' => $template_type ) );
+	wcdn_get_template_content( 'print-content.php', $template_type, array( 'order' => $order, 'template_type' => $template_type ) );
 }
 
 /**
@@ -233,14 +233,14 @@ function wcdn_get_order_info( $order ) {
 	if( wcdn_get_template_type() == 'invoice' && !empty( $create_invoice_number ) && $create_invoice_number == 'yes' ) {
 		$fields['invoice_number'] = array( 
 			'label' => __( 'Invoice Number', 'woocommerce-delivery-notes' ),
-			'value' => wcdn_get_order_invoice_number( $order->id )
+			'value' => wcdn_get_order_invoice_number( $order->get_id() )
 		);
 	}
 	
 	if( wcdn_get_template_type() == 'invoice' ) {	
 		$fields['invoice_date'] = array( 
 			'label' => __( 'Invoice Date', 'woocommerce-delivery-notes' ),
-			'value' => wcdn_get_order_invoice_date( $order->id )
+			'value' => wcdn_get_order_invoice_date( $order->get_id() )
 		);
 	}
 	
@@ -256,20 +256,20 @@ function wcdn_get_order_info( $order ) {
 	
 	$fields['payment_method'] = array( 
 		'label' => __( 'Payment Method', 'woocommerce-delivery-notes' ),
-		'value' => __( $order->payment_method_title, 'woocommerce' )
+		'value' => __( $order->get_payment_method_title(), 'woocommerce' )
 	);
 	
-	if( $order->billing_email ) {
+	if( $order->get_billing_email() ) {
 		$fields['billing_email'] = array(
 			'label' => __( 'Email', 'woocommerce-delivery-notes' ),
-			'value' => $order->billing_email
+			'value' => $order->get_billing_email()
 		);
 	}
 	
-	if( $order->billing_phone ) {
+	if( $order->get_billing_phone() ) {
 		$fields['billing_phone'] = array(
 			'label' => __( 'Telephone', 'woocommerce-delivery-notes' ),
-			'value' => $order->billing_phone
+			'value' => $order->get_billing_phone()
 		);
 	}
 	
@@ -350,11 +350,11 @@ function wcdn_get_formatted_item_price( $order, $item, $tax_display = '' ) {
 	}
 
 	if ( 'excl' == $tax_display ) {
-		$ex_tax_label = $order->prices_include_tax ? 1 : 0;
+		$ex_tax_label = $order->get_prices_include_tax() ? 1 : 0;
 
-		$subtotal = wc_price( $order->get_item_subtotal( $item ), array( 'ex_tax_label' => $ex_tax_label, 'currency' => $order->get_order_currency() ) );
+		$subtotal = wc_price( $order->get_item_subtotal( $item ), array( 'ex_tax_label' => $ex_tax_label, 'currency' => $order->get_currency() ) );
 	} else {
-		$subtotal = wc_price( $order->get_item_subtotal( $item, true ), array('currency' => $order->get_order_currency()) );
+		$subtotal = wc_price( $order->get_item_subtotal( $item, true ), array('currency' => $order->get_currency()) );
 	}
 
 	return apply_filters( 'wcdn_formatted_item_price', $subtotal, $item, $order );
@@ -378,12 +378,12 @@ function wcdn_add_refunded_order_totals( $total_rows, $order ) {
 	
 					foreach ( $order->get_tax_totals() as $code => $tax ) {
 						$tax_del_array[] = sprintf( '%s %s', $tax->formatted_amount, $tax->label );
-						$tax_ins_array[] = sprintf( '%s %s', wc_price( $tax->amount - $order->get_total_tax_refunded_by_rate_id( $tax->rate_id ), array( 'currency' => $order->get_order_currency() ) ), $tax->label );
+						$tax_ins_array[] = sprintf( '%s %s', wc_price( $tax->amount - $order->get_total_tax_refunded_by_rate_id( $tax->rate_id ), array( 'currency' => $order->get_currency() ) ), $tax->label );
 					}
 	
 				} else {
-					$tax_del_array[] = sprintf( '%s %s', wc_price( $order->get_total_tax(), array( 'currency' => $order->get_order_currency() ) ), WC()->countries->tax_or_vat() );
-					$tax_ins_array[] = sprintf( '%s %s', wc_price( $order->get_total_tax() - $order->get_total_tax_refunded(), array( 'currency' => $order->get_order_currency() ) ), WC()->countries->tax_or_vat() );
+					$tax_del_array[] = sprintf( '%s %s', wc_price( $order->get_total_tax(), array( 'currency' => $order->get_currency() ) ), WC()->countries->tax_or_vat() );
+					$tax_ins_array[] = sprintf( '%s %s', wc_price( $order->get_total_tax() - $order->get_total_tax_refunded(), array( 'currency' => $order->get_currency() ) ), WC()->countries->tax_or_vat() );
 				}
 	
 				if ( ! empty( $tax_del_array ) ) {
@@ -396,7 +396,7 @@ function wcdn_add_refunded_order_totals( $total_rows, $order ) {
 			}
 			
 			// use only the number for new wc versions
-			$order_subtotal = wc_price( $order->get_total(), array( 'currency' => $order->get_order_currency() ) );
+			$order_subtotal = wc_price( $order->get_total(), array( 'currency' => $order->get_currency() ) );
 		} else {
 			$refunded_tax_del = '';
 			$refunded_tax_ins = '';
@@ -408,13 +408,13 @@ function wcdn_add_refunded_order_totals( $total_rows, $order ) {
 		// Add refunded totals row
 		$total_rows['wcdn_refunded_total'] = array(
 			'label' => __( 'Refund', 'woocommerce-delivery-notes' ), 
-			'value' => wc_price( -$order->get_total_refunded(), array( 'currency' => $order->get_order_currency() ) )
+			'value' => wc_price( -$order->get_total_refunded(), array( 'currency' => $order->get_currency() ) )
 		);
 		
 		// Add new order totals row
 		$total_rows['wcdn_order_total'] = array(
 			'label' => $total_rows['order_total']['label'], 
-			'value' => wc_price( $order->get_total() - $order->get_total_refunded(), array( 'currency' => $order->get_order_currency() ) ) . $refunded_tax_ins
+			'value' => wc_price( $order->get_total() - $order->get_total_refunded(), array( 'currency' => $order->get_currency() ) ) . $refunded_tax_ins
 		);
 		
 		// Edit the original order total row
@@ -455,7 +455,7 @@ function wcdn_remove_payment_method_from_totals( $total_rows, $order ) {
  */
 function wcdn_get_customer_notes( $order ) {
 	global $wcdn;
-	return stripslashes( wpautop( wptexturize( $order->customer_note ) ) );
+	return stripslashes( wpautop( wptexturize( $order->get_customer_note() ) ) );
 }
 
 /**

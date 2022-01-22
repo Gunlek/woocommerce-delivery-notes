@@ -277,10 +277,10 @@ if ( ! class_exists( 'WooCommerce_Delivery_Notes_Print' ) ) {
 			// Only continue if the orders are populated
 			if( !$populated ) {
 				die();
-			} 
+			}
 			
 			// Load the print template html
-			$location = $this->get_template_file_location( 'print-order.php' );
+			$location = $this->get_template_file_location( 'print-order.php' , $template_type);
 			wc_get_template( 'print-order.php', null, $location, $location );
 			exit;
 		}
@@ -288,14 +288,14 @@ if ( ! class_exists( 'WooCommerce_Delivery_Notes_Print' ) ) {
 		/**
 		 * Find the location of a template file 
 		 */
-		public function get_template_file_location( $name, $url_mode = false ) {
+		public function get_template_file_location( $name, $template_type, $url_mode = false ) {
 			$found = '';
 			foreach( $this->template_locations as $template_location ) {
-				if( isset( $template_location['path'] ) && file_exists( trailingslashit( $template_location['path'] ) . $name ) ) {
+				if( isset( $template_location['path'] ) && file_exists( trailingslashit( $template_location['path'] . $template_type) . $name ) ) {
 					if( $url_mode ) {
-						$found = $template_location['url'];
+						$found = trailingslashit($template_location['url'] . $template_type);
 					} else {
-						$found = $template_location['path'];
+						$found = trailingslashit($template_location['path'] . $template_type);
 					}
 					break;
 				} 
@@ -389,13 +389,13 @@ if ( ! class_exists( 'WooCommerce_Delivery_Notes_Print' ) ) {
 				$order = new WC_Order( $post->ID );
 				
 				// Logged in users			
-				if( is_user_logged_in() && ( !current_user_can( 'edit_shop_orders' ) && !current_user_can( 'view_order', $order->id ) ) ) {
+				if( is_user_logged_in() && ( !current_user_can( 'edit_shop_orders' ) && !current_user_can( 'view_order', $order->get_id() ) ) ) {
 					$this->orders = null;
 					return false;
 				} 
 
 				// An email is required for not logged in users  
-				if( !is_user_logged_in() && ( empty( $this->order_email ) || strtolower( $order->billing_email ) != $this->order_email ) ) {
+				if( !is_user_logged_in() && ( empty( $this->order_email ) || strtolower( $order->get_billing_email() ) != $this->order_email ) ) {
 					$this->orders = null;
 					return false;
 				}
