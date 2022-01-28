@@ -1,0 +1,23 @@
+{
+  "name": "doky/enhanced-woocommerce-custom-delivery-notes",
+  "description": "A enhanced version of woocommerce custom delivery notes, developped by Doky that enable per document type templates",
+  "type": "wordpress-plugin",
+  "require": {
+    "php": ">=7.1",
+    "ext-zip": "*",
+    "composer/installers": "~1.0"
+  },
+  "require-dev": {
+    "elendev/nexus-composer-push": "0.4.0"
+  },
+  "extra": {
+    "nexus-push": {
+      "url": "https://nexus.doky.fr/repository/composer-private",
+      "ignore-by-git-attributes": true,
+      "ignore": [
+        ".idea/",
+        ".gitignore"
+      ]
+    }
+  }
+}
