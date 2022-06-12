@@ -2,11 +2,11 @@
 /**
  * Print invoices & delivery notes for WooCommerce orders.
  *
- * Plugin Name: Print Invoice & Delivery Notes for WooCommerce
+ * Plugin Name: Print Invoice & Delivery Notes for WooCommerce, Specific for Argile
  * Plugin URI: https://www.tychesoftwares.com/
- * Description: Print Invoices & Delivery Notes for WooCommerce Orders.
+ * Description: Print Invoices & Delivery Notes for WooCommerce Orders. Just the same as the original plugin but with the capability to use different templates for each document type
  * Version: 4.6.4
- * Author: Tyche Softwares
+ * Author: Tyche Softwares, Adapted by Fabien Aubret
  * Author URI: https://www.tychesoftwares.com/
  * License: GPLv3 or later
  * License URI: http://www.opensource.org/licenses/gpl-license.php
